@@ -12,9 +12,9 @@ export class CreateAccountUseCase {
         @Inject('IAccountRepository') private readonly accountRepo: IAccountRepository,
     ) { }
 
-    async execute(dto: CreateAccountDto): Promise<Result<void>> {
+    async execute(dto: CreateAccountDto): Promise<Result<string>> {
         const balanceOrError = Money.create(dto.initialBalance, dto.currency);
-        if (balanceOrError.isFailure) return Result.fail(balanceOrError.error);
+        if (balanceOrError.isFailure) return Result.fail<string>(balanceOrError.error);
         const balance = balanceOrError.getValue();
 
         const accountOrError = Account.create({
@@ -23,11 +23,11 @@ export class CreateAccountUseCase {
             allowOverdraft: dto.allowOverdraft,
         });
 
-        if (accountOrError.isFailure) return Result.fail(accountOrError.error);
+        if (accountOrError.isFailure) return Result.fail<string>(accountOrError.error);
         const account = accountOrError.getValue();
 
         await this.accountRepo.save(account);
 
-        return Result.ok();
+        return Result.ok<string>(account.id);
     }
 }

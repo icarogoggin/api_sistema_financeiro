@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 
 const isEntity = (v: any): v is Entity<any> => {
     return v instanceof Entity;
