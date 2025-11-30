@@ -1,98 +1,153 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# 🏦 Financial Management API
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
+![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![Jest](https://img.shields.io/badge/-jest-%23C21325?style=for-the-badge&logo=jest&logoColor=white)
+![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
 
-## Description
+> **Uma API robusta e escalável para gestão de transações financeiras, construída com os mais altos padrões de engenharia de software.**
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## 🚀 Sobre o Projeto
 
-```bash
-$ npm install
+Este projeto é uma demonstração de **arquitetura de software moderna** aplicada a um domínio crítico: o financeiro. O objetivo não é apenas "fazer funcionar", mas garantir **corretude, manutenibilidade e escalabilidade**.
+
+A aplicação gerencia contas e transferências monetárias, garantindo a integridade dos dados através de **transações atômicas** e regras de negócio encapsuladas no domínio.
+
+### ✨ Destaques Técnicos (Por que este projeto é diferente?)
+
+*   **Clean Architecture & DDD**: O código é desacoplado. O núcleo da aplicação (Domínio) não depende de frameworks ou bancos de dados. Isso permite testabilidade e flexibilidade.
+*   **Tratamento de Erros Funcional**: Utilização do padrão **Result/Either (Monads)** para lidar com erros de forma explícita e previsível, evitando o "caos" de exceções não tratadas.
+*   **Value Objects**: O dinheiro não é apenas um `number`. É um **Value Object** que encapsula regras de validação e operações aritméticas seguras, prevenindo erros de arredondamento e lógica.
+*   **Segurança e Consistência**: Validações rigorosas na entrada (DTOs) e no coração do sistema (Entidades), garantindo que o estado da aplicação seja sempre válido.
+
+---
+
+## 🛠️ Tech Stack
+
+*   **Core**: [Node.js](https://nodejs.org/), [NestJS](https://nestjs.com/), [TypeScript](https://www.typescriptlang.org/)
+*   **Database**: [PostgreSQL](https://www.postgresql.org/), [Prisma ORM](https://www.prisma.io/)
+*   **Infra**: [Docker](https://www.docker.com/), Docker Compose
+*   **Testing**: [Jest](https://jestjs.io/), Supertest
+*   **Docs**: [Swagger / OpenAPI](https://swagger.io/)
+
+---
+
+## 🏗️ Arquitetura
+
+O projeto segue estritamente a **Clean Architecture**, dividindo as responsabilidades em camadas concêntricas:
+
+```mermaid
+graph TD
+    subgraph "Infrastructure Layer"
+        DB[(PostgreSQL)]
+        Prisma[Prisma ORM]
+        Controller[AccountController]
+    end
+
+    subgraph "Application Layer"
+        UC1[CreateAccountUseCase]
+        UC2[TransferFundsUseCase]
+        DTOs[DTOs]
+    end
+
+    subgraph "Domain Layer (Core)"
+        Entity[Account Entity]
+        VO[Money ValueObject]
+        RepoInt[IAccountRepository]
+    end
+
+    Controller --> UC1
+    Controller --> UC2
+    UC1 --> RepoInt
+    UC2 --> RepoInt
+    UC1 --> Entity
+    Prisma -.-> RepoInt
+    Prisma --> DB
 ```
 
-## Compile and run the project
+---
 
+## ⚡ Como Executar
+
+### Pré-requisitos
+*   Node.js (v18+)
+*   Docker & Docker Compose
+
+### 1. Instalação
 ```bash
-# development
-$ npm run start
+# Clone o repositório
+git clone https://github.com/icarogoggin/api_sistema_financeiro.git
 
-# watch mode
-$ npm run start:dev
+# Entre na pasta
+cd api_sistema_financeiro
 
-# production mode
-$ npm run start:prod
+# Instale as dependências
+npm install
 ```
 
-## Run tests
-
+### 2. Rodando com Docker (Recomendado)
+Suba o banco de dados PostgreSQL em segundos:
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker-compose up -d
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+### 3. Configuração do Banco
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Gere o cliente do Prisma
+npx prisma generate
+
+# (Opcional) Execute as migrações se necessário
+# npx prisma migrate dev
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 4. Inicie a API
+```bash
+npm run start:dev
+```
+A API estará rodando em `http://localhost:3000`.
 
-## Resources
+---
 
-Check out a few resources that may come in handy when working with NestJS:
+## 🧪 Testes
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+A qualidade é garantida por uma suíte de testes automatizados.
 
-## Support
+*   **Testes Unitários**: Validam as regras de negócio isoladas (Entidades e Value Objects).
+    ```bash
+    npm run test
+    ```
+*   **Testes E2E (Integração)**: Validam os fluxos completos da API (Controllers -> UseCases).
+    ```bash
+    npm run test:e2e
+    ```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+---
 
-## Stay in touch
+## 📚 Documentação (Swagger)
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+A documentação interativa da API é gerada automaticamente.
+Após iniciar a aplicação, acesse:
 
-## License
+👉 **[http://localhost:3000/api](http://localhost:3000/api)**
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+
+## 🎮 Demonstração Rápida (Sem Docker)
+
+Quer ver o código rodando agora mesmo, sem configurar nada?
+Execute o script de demonstração que utiliza um repositório em memória:
+
+```bash
+npx ts-node --project tsconfig.demo.json demo.ts
+```
+Isso simulará a criação de contas e transferências no seu terminal.
+
+---
+
+Developed with 💜 by **Ícaro Goggin**
