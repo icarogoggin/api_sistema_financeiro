@@ -9,12 +9,11 @@ import { Money } from '../../domain/value-objects/Money.vo';
 export class TransferFundsUseCase {
     constructor(
         @Inject('IAccountRepository') private readonly accountRepo: IAccountRepository,
-        // @Inject('ITransactionManager') private readonly transactionManager: ITransactionManager // Assuming we have this provider
+
     ) { }
 
     async execute(dto: TransferFundsDto): Promise<Result<void>> {
-        // Transaction logic should be here, but for now we just execute sequentially.
-        // Ideally we wrap this in transactionManager.run(() => { ... })
+        // TODO: Implement transactional consistency
 
         const from = await this.accountRepo.findById(dto.fromId);
         if (!from) return Result.fail(`Account ${dto.fromId} not found`);

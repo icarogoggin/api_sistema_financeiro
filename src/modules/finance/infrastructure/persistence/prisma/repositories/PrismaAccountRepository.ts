@@ -29,8 +29,6 @@ export class PrismaAccountRepository implements IAccountRepository {
             create: data,
         });
 
-        // Note: We are not saving LedgerEntries here yet because the Use Case should handle it via a separate repository or transaction,
-        // or we should map events to LedgerEntries.
-        // For now, we only persist the Account state (including balance snapshot).
+        // TODO: Implement LedgerEntries persistence
     }
 }

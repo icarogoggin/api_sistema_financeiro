@@ -10,7 +10,7 @@ type PrismaAccountWithEntries = PrismaAccount & {
 export class AccountMapper {
     public static toDomain(raw: PrismaAccountWithEntries): Account {
         const balanceAmount = raw.entries.reduce((acc, entry) => acc + entry.amount, 0);
-        const balanceOrError = Money.create(balanceAmount, 'BRL'); // Assuming BRL for now or store currency in Account
+        const balanceOrError = Money.create(balanceAmount, 'BRL');
 
         if (balanceOrError.isFailure) {
             throw new Error(`Invalid balance for account ${raw.id}: ${balanceOrError.error}`);
