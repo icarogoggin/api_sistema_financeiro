@@ -1,0 +1,43 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model LedgerJournal {
+  id          String   @id @default(uuid())
+  description String
+  postedAt    DateTime
+  entries     LedgerEntry[]
+}
+
+model LedgerEntry {
+  id        String   @id @default(uuid())
+  amount    Int      // Positivo para Débito, Negativo para Crédito
+  accountId String
+  journalId String
+  journal   LedgerJournal @relation(fields: [journalId], references: [id])
+  account   Account       @relation(fields: [accountId], references: [id])
+}
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  INCOME
+  EXPENSE
+}
+
+model Account {
+  id             String        @id @default(uuid())
+  name           String
+  type           AccountType
+  status         String        // 'ACTIVE' | 'INACTIVE'
+  allowOverdraft Boolean       @default(false)
+  balance        Int           // Stored balance in cents
+  entries        LedgerEntry[]
+}
