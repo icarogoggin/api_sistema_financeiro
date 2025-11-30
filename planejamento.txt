@@ -1,0 +1,117 @@
+Blueprint Arquitetural para Ecossistemas Financeiros em Node.js: Uma Abordagem Exaustiva de Clean Architecture e Domain-Driven Design1. Introdução: A Imperativa da Arquitetura Limpa em FinTechO desenvolvimento de software para o setor financeiro exige um rigor de engenharia que transcende as práticas comuns de desenvolvimento web. Diferente de aplicações de mídia social ou e-commerce simplificado, onde a consistência eventual e pequenos erros de dados podem ser toleráveis, sistemas financeiros operam sob um mandato de precisão absoluta. A perda de um único centavo devido a erros de arredondamento de ponto flutuante, a corrupção de dados por condições de corrida em transações concorrentes, ou a violação de integridade referencial não são apenas bugs técnicos; são passivos financeiros e legais.Neste contexto, a adoção da Clean Architecture (Arquitetura Limpa), conforme proposta por Robert C. Martin, não é meramente uma escolha estilística, mas uma estratégia defensiva essencial para garantir a longevidade, testabilidade e manutenibilidade do sistema.1 O objetivo central deste relatório é dissecar, com profundidade granular, o conceito de uma API de Gestão Financeira construída sobre o ecossistema NestJS, utilizando TypeScript e Prisma (ou TypeORM), aderindo estritamente aos princípios de inversão de dependência e segregação de responsabilidades.A tese fundamental que permeará esta análise é a Regra de Dependência: as dependências do código-fonte devem apontar apenas para dentro, em direção às políticas de alto nível. O núcleo financeiro da aplicação — as regras que ditam como o dinheiro se move, como os juros são calculados e como os saldos são reconciliados — deve permanecer imaculado, isolado das turbulências tecnológicas de frameworks web, bibliotecas de banco de dados ou interfaces de usuário.22. Fundamentos Teóricos e EstruturaisA arquitetura proposta não é monolítica no sentido tradicional, mas sim modular e estratificada. A estrutura de pastas e a organização do código são a manifestação física dos limites arquiteturais. Em um projeto NestJS financeiro, a tentação de acoplar a lógica de negócios aos decoradores do framework (como @Controller ou @Injectable) ou às entidades do ORM (como @Entity do TypeORM ou modelos do Prisma) deve ser vigorosamente resistida.2.1 A Anatomia dos Círculos ConcêntricosPara visualizar a aplicação, devemos imaginar quatro camadas concêntricas, cada uma com responsabilidades distintas e restrições de acesso severas.CamadaComponentes PrincipaisResponsabilidade PrimáriaNível de AbstraçãoDomínio (Enterprise Rules)Entidades, Value Objects, Domain Services, Interfaces de RepositórioRegras de negócio universais, independentes da aplicação.Altíssimo (Puro TypeScript)Aplicação (Application Rules)Use Cases (Interactors), DTOs, Portas (Interfaces)Orquestração do fluxo de dados, casos de uso específicos do usuário.AltoAdaptadores de InterfaceControllers, Resolvers, Presenters, Gateways, MappersConversão de dados entre formatos externos e internos.MédioFrameworks & DriversNestJS, Prisma/TypeORM, PostgreSQL, Redis, HTTPDetalhes de implementação, I/O, persistência física.Baixo (Concreto)A violação mais comum em projetos NestJS ocorre quando o Domínio importa decoradores do NestJS ou tipos do Prisma. Isso cria um acoplamento onde uma mudança na biblioteca de banco de dados força uma recompilação e reteste das regras de negócio financeiras, o que é inaceitável.42.2 Estrutura de Diretórios RecomendadaA organização física dos arquivos deve refletir a separação lógica. A estrutura abaixo propõe um modelo que favorece o Vertical Slicing (divisão por funcionalidades/módulos) dentro de um Horizontal Slicing (divisão por camadas arquiteturais).src/├── core/                                   # Kernel Compartilhado (Shared Kernel)│   ├── logic/                              # Result, Either, Guard (Monads)│   ├── domain/                             # Classes base para Entidades e VOs│   └── exceptions/                         # Exceções de Domínio genéricas├── modules/                                # Módulos de Funcionalidade (Bounded Contexts)│   ├── finance/                            # O Coração do Sistema Financeiro│   │   ├── domain/                         # CAMADA 1: O Núcleo Protegido│   │   │   ├── entities/                   # Account, Transaction, Ledger│   │   │   ├── value-objects/              # Money, Currency, AccountNumber│   │   │   ├── events/                     # FundsDepositedEvent│   │   │   └── repositories/               # IAccountRepository (Interfaces apenas)│   │   ├── application/                    # CAMADA 2: Orquestração│   │   │   ├── use-cases/                  # TransferFundsUseCase, GetBalanceUseCase│   │   │   ├── dtos/                       # TransferFundsRequestDto│   │   │   └── ports/                      # Interfaces para serviços externos (IPaymentGateway)│   │   ├── infrastructure/                 # CAMADA 4: Implementação Concreta│   │   │   ├── persistence/                # Implementação de Banco de Dados│   │   │   │   ├── prisma/                 # Implementação específica do Prisma│   │   │   │   │   ├── repositories/       # PrismaAccountRepository│   │   │   │   │   └── mappers/            # Tradução Prisma <-> Domínio│   │   │   └── adapters/                   # Implementação de Portas (StripeAdapter)│   │   └── presentation/                   # CAMADA 3: Interface Pública│   │       ├── controllers/                # HttpControllers│   │       └── cron/                       # Agendadores de tarefas recorrentes│   └── iam/                                # Identity & Access Management (Outro Contexto)└── main.ts                                 # Bootstrap da AplicaçãoEsta estrutura 6 garante que cada módulo funcione como uma "mini-aplicação" isolada, comunicando-se através de APIs públicas bem definidas, facilitando uma futura extração para microsserviços se necessário.3. A Camada de Domínio: O Coração FinanceiroNo centro da arquitetura reside a Camada de Domínio. Em um sistema financeiro, esta camada não pode ser anêmica. Modelos anêmicos — classes que contêm apenas dados e nenhuma lógica — são um anti-padrão que delega a responsabilidade da integridade dos dados para a camada de serviços, espalhando regras de negócio e duplicando validações.3.1 Entidades Ricas e InvariantesUma entidade financeira, como Account (Conta), deve ser responsável por garantir sua própria consistência interna. Um saldo nunca deve ser modificado diretamente via um setter. Em vez disso, métodos semânticos como debit() e credit() devem encapsular as regras.O conceito de Invariante é crucial aqui: uma regra que deve ser sempre verdadeira. Por exemplo, "uma conta não pode ter saldo negativo a menos que tenha um limite de cheque especial aprovado". Essa regra deve residir dentro da entidade Account, e não em um AccountService ou TransactionController.2Implementação Conceitual de Entidade Rica:TypeScript// modules/finance/domain/entities/account.entity.ts
+import { AggregateRoot } from '@core/domain/aggregate-root';
+import { Money } from '../value-objects/money.vo';
+import { InsufficientFundsException } from '../exceptions';
+
+export class Account extends AggregateRoot<AccountProps> {
+  get balance(): Money {
+    return this.props.balance;
+  }
+
+  public withdraw(amount: Money): Result<void> {
+    if (this.props.status!== 'ACTIVE') {
+      return Result.fail(new AccountInactiveException());
+    }
+    
+    const newBalance = this.props.balance.subtract(amount);
+    
+    if (newBalance.isNegative() &&!this.props.allowOverdraft) {
+      return Result.fail(new InsufficientFundsException());
+    }
+
+    this.props.balance = newBalance;
+    this.addDomainEvent(new AccountWithdrawnEvent(this.id, amount));
+    return Result.ok();
+  }
+}
+Observe que a entidade não possui anotações @Entity() ou @Column(). Ela é pura. A persistência é um detalhe de infraestrutura que será resolvido posteriormente através de Mappers.73.2 Value Objects: A Supremacia do MoneyEm sistemas financeiros, o uso de tipos primitivos (number, float) para representar valores monetários é a raiz de erros catastróficos. A aritmética de ponto flutuante (IEEE 754) utilizada pelo JavaScript e pela maioria das linguagens introduz imprecisões decimais (ex: 0.1 + 0.2!== 0.3).Para mitigar isso, é imperativo o uso do padrão Value Object para representar Dinheiro. Um Value Object é imutável e definido pelos seus atributos, não por uma identidade.Estratégias de Modelagem de Dinheiro:Integers (Centavos): Armazenar valores como inteiros representando a menor unidade da moeda (ex: $10.00 é armazenado como 1000). Isso elimina problemas de ponto flutuante em adições e subtrações simples.8Bibliotecas Especializadas: Utilizar bibliotecas como dinero.js ou currency.js encapsuladas dentro do Value Object Money. Isso permite operações seguras como alocação proporcional (dividir $100 por 3 sem perder 1 centavo).10Exemplo de Value Object Money:TypeScript// modules/finance/domain/value-objects/money.vo.ts
+export class Money extends ValueObject<MoneyProps> {
+  private constructor(props: MoneyProps) { super(props); }
+
+  public static create(amount: number, currency: string): Result<Money> {
+    if (!Number.isInteger(amount)) {
+      return Result.fail('Amount must be an integer in minor units');
+    }
+    return Result.ok(new Money({ amount, currency }));
+  }
+
+  public add(other: Money): Money {
+    if (this.props.currency!== other.props.currency) {
+      throw new CurrencyMismatchException();
+    }
+    return new Money({ 
+      amount: this.props.amount + other.props.amount, 
+      currency: this.props.currency 
+    });
+  }
+}
+A decisão entre usar tipos DECIMAL no banco de dados (Postgres) ou INTEGER é complexa. Para a maioria das aplicações de finanças pessoais ou e-commerce, INTEGER (centavos) é suficiente e performático. Para sistemas de trading ou criptomoedas que exigem precisão além de 2 casas decimais, tipos NUMERIC ou DECIMAL no PostgreSQL são obrigatórios, mapeados para bibliotecas BigNumber no JavaScript.123.3 Agregados e Consistência TransacionalNo Domain-Driven Design (DDD), um Agregado é um cluster de objetos de domínio que podem ser tratados como uma unidade única. A entidade raiz do agregado (Aggregate Root) é a única porta de entrada para modificar os objetos internos.No contexto financeiro, uma Transaction (Transação) é frequentemente um Agregado. Se uma transação possui múltiplos Splits (divisões de categorias), você não pode salvar um Split individualmente. Você salva a Transação, e ela garante que a soma dos Splits seja igual ao total da transação. Isso garante consistência imediata dentro dos limites do agregado.144. A Camada de Aplicação: Orquestração e Casos de UsoA Camada de Aplicação envolve o Domínio e atua como a API interna do sistema. Ela contém os Casos de Uso (Use Cases), que representam as ações que um usuário pode realizar no sistema (ex: "Registrar Despesa", "Gerar Extrato", "Reconciliar Conta").4.1 Isolamento através de DTOs e InterfacesUm erro crítico em muitas implementações é passar Entidades de Domínio diretamente para os Controllers ou receber objetos do Prisma diretamente nos Casos de Uso. A Arquitetura Limpa exige isolamento total.Input: O Caso de Uso recebe um DTO de Requisição (Input DTO), que é um objeto simples de dados, validado, mas sem comportamento.Processamento: O Caso de Uso orquestra a recuperação de Entidades através de Repositórios (Interfaces), invoca métodos de negócio nas Entidades e persiste as mudanças.Output: O Caso de Uso retorna um DTO de Resposta (Output DTO). Nunca se retorna a Entidade Account inteira, pois ela pode conter métodos internos ou dados sensíveis que não devem ser serializados para JSON.164.2 O Padrão Unit of Work e AtomicidadeOperações financeiras frequentemente requerem atomicidade em múltiplos agregados. Uma transferência de fundos envolve debitar a Conta A e creditar a Conta B. Se a segunda falhar, a primeira deve ser revertida.Na Arquitetura Limpa, a gestão de transações de banco de dados (BEGIN, COMMIT, ROLLBACK) é um detalhe de infraestrutura, mas a necessidade de atomicidade é uma regra de aplicação.Para resolver este paradoxo sem acoplar o Caso de Uso ao Prisma, utiliza-se o padrão Unit of Work ou transações controladas por callback injetadas.TypeScript// modules/finance/application/use-cases/transfer-funds.use-case.ts
+export class TransferFundsUseCase {
+  constructor(
+    private readonly accountRepo: IAccountRepository,
+    private readonly transactionManager: ITransactionManager // Abstração
+  ) {}
+
+  async execute(dto: TransferFundsDto): Promise<Result<void>> {
+    return this.transactionManager.run(async () => {
+      const from = await this.accountRepo.findById(dto.fromId);
+      const to = await this.accountRepo.findById(dto.toId);
+
+      from.withdraw(Money.create(dto.amount, dto.currency));
+      to.deposit(Money.create(dto.amount, dto.currency));
+
+      await this.accountRepo.save(from);
+      await this.accountRepo.save(to);
+    });
+  }
+}
+Esta abordagem mantém o Caso de Uso limpo, enquanto a implementação concreta de ITransactionManager na camada de infraestrutura utilizará prisma.$transaction.185. A Camada de Infraestrutura: A Realidade TecnológicaÉ nesta camada que o "mundo ideal" do domínio encontra a realidade do hardware e do software. Aqui residem as implementações concretas dos repositórios, a configuração do Prisma/TypeORM, os controladores HTTP do NestJS e integrações externas.5.1 Prisma vs. TypeORM na Arquitetura LimpaA escolha entre Prisma e TypeORM impacta significativamente a implementação da camada de persistência, embora não deva afetar o domínio.TypeORM: Utiliza o padrão Active Record ou Data Mapper com classes decoradas (@Entity). É tentador usar a própria entidade do TypeORM como Entidade de Domínio, mas isso viola a Arquitetura Limpa, pois polui o domínio com dependências de banco de dados (@Column, @OneToMany).18Prisma: Gera tipos baseados no esquema (schema.prisma). Esses tipos são interfaces/objetos simples, não classes. Isso força, de forma benéfica, a criação de Mappers, pois os tipos do Prisma não possuem comportamentos (métodos) e não podem atuar como Entidades Ricas.21Recomendação: Para este projeto, o uso do Prisma é recomendado devido à sua segurança de tipos superior e facilidade de migrações, desde que acompanhado estritamente pelo padrão Data Mapper.5.2 O Padrão Repository e Data MapperO Repositório é a fronteira entre o Domínio e a Persistência. A interface do repositório (IAccountRepository) pertence ao Domínio, mas a implementação (PrismaAccountRepository) pertence à Infraestrutura.O componente vital aqui é o Mapper.Tabela: Responsabilidades do MapperDireçãoMétodoEntrada (Source)Saída (Target)AçãoRecuperaçãotoDomainPrisma Model (DB Row)Domain EntityReconstituir Value Objects, hidratar estado, validar invariantes de dados existentes.PersistênciatoPersistenceDomain EntityPrisma InputExtrair valores primitivos, converter VOs para colunas (ex: Money -> Int), preparar chaves estrangeiras.ApresentaçãotoDTODomain EntityResponse JSONFormatar datas para ISO, ocultar IDs internos, expor dados view-friendly.Exemplo de Implementação de Repositório com Prisma:TypeScript// modules/finance/infrastructure/persistence/prisma/repositories/prisma-account.repository.ts
+@Injectable()
+export class PrismaAccountRepository implements IAccountRepository {
+  constructor(private prisma: PrismaService) {}
+
+  async findById(id: string): Promise<Account | null> {
+    const raw = await this.prisma.account.findUnique({ where: { id } });
+    if (!raw) return null;
+    return AccountMapper.toDomain(raw); // O segredo está aqui
+  }
+
+  async save(account: Account): Promise<void> {
+    const data = AccountMapper.toPersistence(account);
+    await this.prisma.account.upsert({
+      where: { id: data.id },
+      update: data,
+      create: data,
+    });
+  }
+}
+Este padrão isola completamente o Prisma. Se amanhã o banco mudar para MongoDB ou o ORM para MikroORM, apenas esta classe e o Mapper mudam; o resto da aplicação permanece intacto.235.3 Injeção de Dependência no NestJSPara conectar as interfaces abstratas do domínio com as implementações concretas da infraestrutura, utilizamos o sistema de DI do NestJS com "Custom Providers" usando useClass.TypeScript// modules/finance/finance.module.ts
+@Module({
+  imports: [PrismaModule],
+  controllers: [AccountController],
+  providers:,
+})
+export class FinanceModule {}
+Isso permite que o CreateAccountUseCase injete @Inject('IAccountRepository') sem saber que está usando o Prisma.256. Perspectivas Avançadas de Dados Financeiros6.1 Schema de Contabilidade de Dupla Entrada (Double-Entry Bookkeeping)Para uma API de gestão financeira robusta, simplesmente ter uma coluna balance na tabela User é insuficiente e perigoso. O padrão ouro é a Contabilidade de Dupla Entrada.Neste modelo, o dinheiro nunca é criado ou destruído, apenas movido. Cada transação deve ter pelo menos um débito e um crédito correspondente que somem zero.Esquema de Banco de Dados Sugerido (PostgreSQL/Prisma):Snippet de códigomodel LedgerJournal {
+  id          String   @id @default(uuid())
+  description String
+  postedAt    DateTime
+  entries     LedgerEntry
+}
+
+model LedgerEntry {
+  id        String   @id @default(uuid())
+  amount    Int      // Positivo para Débito, Negativo para Crédito (ou vice-versa, dependendo da convenção)
+  accountId String
+  journalId String
+  journal   LedgerJournal @relation(fields: [journalId], references: [id])
+  account   Account       @relation(fields: [accountId], references: [id])
+}
+
+model Account {
+  id      String        @id @default(uuid())
+  name    String
+  type    AccountType   // ASSET, LIABILITY, EQUITY, INCOME, EXPENSE
+  entries LedgerEntry
+}
+Com este esquema, o saldo de uma conta não é um valor armazenado, mas sim a soma de todas as LedgerEntry associadas a ela. Isso fornece uma trilha de auditoria completa e matemática infalível.26 Embora exija mais processamento para calcular saldos (o que pode ser mitigado com Snapshots ou Views materializadas), é a única maneira de garantir integridade financeira real.6.2 Auditoria e Imutabilidade (Audit Logging)Além do Ledger, é vital rastrear quem fez a alteração e o que mudou. O uso de Interceptors no NestJS ou Middleware no Prisma permite capturar o contexto do usuário e registrar mudanças.Uma abordagem eficaz é o padrão CDC (Change Data Capture) na aplicação ou o registro explícito de logs de auditoria na mesma transação da mudança de dados. O log deve conter: EntityId, OldState, NewState, TriggeredByUserId, IpAddress, Timestamp. Isso é essencial para conformidade regulatória e detecção de fraudes.296.3 Soft Deletes e a Ilusão da ExclusãoEm finanças, dados raramente são deletados. Uma transação errada é estornada (uma nova transação inversa é criada), não apagada. Entretanto, para entidades como Categorias ou Metas de Orçamento, o Soft Delete é aplicável.No Prisma, isso pode ser implementado via Middleware ou Extensões, interceptando ações delete e convertendo-as em update({ deletedAt: new Date() }). Contudo, a Camada de Domínio deve ser explícita sobre isso. Uma entidade Category deve ter um método archive(), e o repositório deve filtrar itens arquivados por padrão.317. Interface e Segurança: Protegendo a API7.1 Idempotência em TransaçõesEm redes instáveis, um cliente pode enviar a mesma requisição de pagamento duas vezes (clique duplo, retry automático). A API deve ser Idempotente.A implementação ideal utiliza uma chave de idempotência (Idempotency-Key header).Interceptor NestJS: Intercepta requisições POST críticas.Cache (Redis): Verifica se a chave já foi processada.Resposta em Cache: Se sim, retorna a resposta exata da primeira tentativa sem reprocessar a lógica.Processamento Atômico: Se não, processa e salva o resultado no Redis com um TTL (Time-to-Live).337.2 Rate Limiting e SegurançaAPIs financeiras são alvos de força bruta. O pacote @nestjs/throttler deve ser configurado para limitar requisições baseadas em IP e User ID. Além disso, a validação de dados de entrada via class-validator nos DTOs atua como a primeira linha de defesa contra injeção de dados malformados.358. Estratégia de Testes: A Pirâmide de Testes na Arquitetura LimpaA separação de camadas facilita drasticamente a estratégia de testes.Testes Unitários (Domínio): Testam a lógica pura (Account.withdraw). Não envolvem mocks complexos, apenas instanciação de classes. São extremamente rápidos.Testes Unitários (Casos de Uso): Testam a orquestração. Aqui, os repositórios são mockados (Jest.fn()) para simular cenários de banco de dados (sucesso, falha, não encontrado). Validam se o fluxo de negócio está correto.37Testes de Integração (Infraestrutura): Testam se o PrismaAccountRepository realmente grava e lê corretamente do PostgreSQL. Utilizam um banco de dados real (frequentemente via Docker Containers efêmeros com testcontainers) para garantir que o mapeamento e as queries SQL/Prisma estão corretos.Testes E2E (API): Testam a aplicação como uma caixa preta, chamando os endpoints HTTP e verificando o status e o corpo da resposta. O NestJS fornece excelente suporte para isso com supertest.399. Considerações de DevOps e DeployPara tornar esta arquitetura pronta para produção, a containerização é essencial. Um Dockerfile multi-estágio deve ser utilizado para:Build Stage: Instalar dependências de desenvolvimento, compilar o TypeScript para JavaScript (dist) e gerar o Prisma Client.Production Stage: Copiar apenas a pasta dist e node_modules (apenas dependências de produção), garantindo uma imagem leve e segura.O arquivo docker-compose.yml deve orquestrar não apenas a API, mas também o banco de dados PostgreSQL e o Redis (para cache e filas), facilitando o ambiente de desenvolvimento local idêntico ao de produção.4110. ConclusãoA arquitetura apresentada para a API de Gestão Financeira não é a rota de menor resistência. Ela exige mais arquivos, mais classes e mais abstrações do que um padrão MVC simples. No entanto, o custo inicial de complexidade é um investimento que paga dividendos exponenciais na forma de estabilidade, escalabilidade e manutenibilidade.Ao desacoplar as regras financeiras da infraestrutura tecnológica, cria-se um sistema que pode evoluir: o banco de dados pode mudar, o framework web pode ser substituído, integrações externas podem ser trocadas, mas o núcleo de negócio — a inteligência financeira da organização — permanece protegido e inalterado. Este é o objetivo final da Arquitetura Limpa.
