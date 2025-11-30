@@ -1,9 +1,8 @@
 
 import { Inject, Injectable } from '@nestjs/common';
-import { IAccountRepository } from '../../domain/repositories/IAccountRepository';
-import { ITransactionManager } from '../ports/ITransactionManager';
+import type { IAccountRepository } from '../../domain/repositories/IAccountRepository';
 import { TransferFundsDto } from '../dtos/TransferFundsDto';
-import { Result } from '../../../../../core/logic/Result';
+import { Result } from '../../../../core/logic/Result';
 import { Money } from '../../domain/value-objects/Money.vo';
 
 @Injectable()

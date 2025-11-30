@@ -1,5 +1,5 @@
 
-import { IDomainEvent } from "../../../../../core/domain/events/IDomainEvent";
+import { IDomainEvent } from "../../../../core/domain/events/IDomainEvent";
 import { Money } from "../value-objects/Money.vo";
 
 export class AccountWithdrawnEvent implements IDomainEvent {

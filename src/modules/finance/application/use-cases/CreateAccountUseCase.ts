@@ -1,8 +1,8 @@
 
 import { Inject, Injectable } from '@nestjs/common';
-import { IAccountRepository } from '../../domain/repositories/IAccountRepository';
+import type { IAccountRepository } from '../../domain/repositories/IAccountRepository';
 import { CreateAccountDto } from '../dtos/CreateAccountDto';
-import { Result } from '../../../../../core/logic/Result';
+import { Result } from '../../../../core/logic/Result';
 import { Money } from '../../domain/value-objects/Money.vo';
 import { Account } from '../../domain/entities/Account.entity';
 

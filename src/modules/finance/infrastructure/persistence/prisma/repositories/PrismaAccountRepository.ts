@@ -2,8 +2,8 @@
 import { Injectable } from '@nestjs/common';
 import { IAccountRepository } from '../../../../domain/repositories/IAccountRepository';
 import { Account } from '../../../../domain/entities/Account.entity';
-import { PrismaService } from './prisma.service';
-import { AccountMapper } from './mappers/AccountMapper';
+import { PrismaService } from '../prisma.service';
+import { AccountMapper } from '../mappers/AccountMapper';
 
 @Injectable()
 export class PrismaAccountRepository implements IAccountRepository {

@@ -1,7 +1,7 @@
 
-export interface TransferFundsDto {
+export class TransferFundsDto {
     fromId: string;
     toId: string;
-    amount: number; // Integer cents
+    amount: number;
     currency: string;
 }

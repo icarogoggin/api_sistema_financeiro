@@ -4,7 +4,7 @@ import { CreateAccountUseCase } from '../../application/use-cases/CreateAccountU
 import { TransferFundsUseCase } from '../../application/use-cases/TransferFundsUseCase';
 import { CreateAccountDto } from '../../application/dtos/CreateAccountDto';
 import { TransferFundsDto } from '../../application/dtos/TransferFundsDto';
-import { Response } from 'express';
+import type { Response } from 'express';
 
 @Controller('accounts')
 export class AccountController {

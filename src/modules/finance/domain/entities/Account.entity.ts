@@ -1,6 +1,6 @@
 
-import { AggregateRoot } from "../../../../../core/domain/AggregateRoot";
-import { Result } from "../../../../../core/logic/Result";
+import { AggregateRoot } from "../../../../core/domain/AggregateRoot";
+import { Result } from "../../../../core/logic/Result";
 import { Money } from "../value-objects/Money.vo";
 import { AccountInactiveException } from "../exceptions/AccountInactiveException";
 import { InsufficientFundsException } from "../exceptions/InsufficientFundsException";
@@ -15,6 +15,14 @@ interface AccountProps {
 export class Account extends AggregateRoot<AccountProps> {
     get balance(): Money {
         return this.props.balance;
+    }
+
+    get status(): 'ACTIVE' | 'INACTIVE' {
+        return this.props.status;
+    }
+
+    get allowOverdraft(): boolean {
+        return this.props.allowOverdraft;
     }
 
     private constructor(props: AccountProps, id?: string) {
@@ -41,9 +49,7 @@ export class Account extends AggregateRoot<AccountProps> {
             return Result.fail(new InsufficientFundsException().message);
         }
 
-        // Update balance
         (this.props as any).balance = newBalance;
-
         this.addDomainEvent(new AccountWithdrawnEvent(this._id, amount));
         return Result.ok();
     }
@@ -51,7 +57,6 @@ export class Account extends AggregateRoot<AccountProps> {
     public deposit(amount: Money): Result<void> {
         const newBalanceResult = this.props.balance.add(amount);
         if (newBalanceResult.isFailure) return Result.fail(newBalanceResult.error);
-
         (this.props as any).balance = newBalanceResult.getValue();
         return Result.ok();
     }
