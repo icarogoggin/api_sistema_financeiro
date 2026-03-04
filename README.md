@@ -1,153 +1,213 @@
+<div align="center">
 
-# 🏦 Financial Management API
+<h1>ðŸ’° API Sistema Financeiro</h1>
 
-![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
-![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
-![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
-![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
-![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
-![Jest](https://img.shields.io/badge/-jest-%23C21325?style=for-the-badge&logo=jest&logoColor=white)
-![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
+<p>
+  <strong>RESTful API de gestÃ£o financeira pessoal construÃ­da com Clean Architecture e Domain-Driven Design</strong>
+</p>
 
-> **Uma API robusta e escalável para gestão de transações financeiras, construída com os mais altos padrões de engenharia de software.**
+<p>
+  <img src="https://img.shields.io/badge/NestJS-11.x-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" />
+  <img src="https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/Prisma-5.x-2D3748?style=for-the-badge&logo=prisma&logoColor=white" />
+  <img src="https://img.shields.io/badge/PostgreSQL-13-336791?style=for-the-badge&logo=postgresql&logoColor=white" />
+  <img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+  <img src="https://img.shields.io/badge/Swagger-OpenAPI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" />
+</p>
 
----
-
-## 🚀 Sobre o Projeto
-
-Este projeto é uma demonstração de **arquitetura de software moderna** aplicada a um domínio crítico: o financeiro. O objetivo não é apenas "fazer funcionar", mas garantir **corretude, manutenibilidade e escalabilidade**.
-
-A aplicação gerencia contas e transferências monetárias, garantindo a integridade dos dados através de **transações atômicas** e regras de negócio encapsuladas no domínio.
-
-### ✨ Destaques Técnicos (Por que este projeto é diferente?)
-
-*   **Clean Architecture & DDD**: O código é desacoplado. O núcleo da aplicação (Domínio) não depende de frameworks ou bancos de dados. Isso permite testabilidade e flexibilidade.
-*   **Tratamento de Erros Funcional**: Utilização do padrão **Result/Either (Monads)** para lidar com erros de forma explícita e previsível, evitando o "caos" de exceções não tratadas.
-*   **Value Objects**: O dinheiro não é apenas um `number`. É um **Value Object** que encapsula regras de validação e operações aritméticas seguras, prevenindo erros de arredondamento e lógica.
-*   **Segurança e Consistência**: Validações rigorosas na entrada (DTOs) e no coração do sistema (Entidades), garantindo que o estado da aplicação seja sempre válido.
+</div>
 
 ---
 
-## 🛠️ Tech Stack
+## ðŸ“‹ Sobre o Projeto
 
-*   **Core**: [Node.js](https://nodejs.org/), [NestJS](https://nestjs.com/), [TypeScript](https://www.typescriptlang.org/)
-*   **Database**: [PostgreSQL](https://www.postgresql.org/), [Prisma ORM](https://www.prisma.io/)
-*   **Infra**: [Docker](https://www.docker.com/), Docker Compose
-*   **Testing**: [Jest](https://jestjs.io/), Supertest
-*   **Docs**: [Swagger / OpenAPI](https://swagger.io/)
+API REST para gestÃ£o de finanÃ§as pessoais, projetada com foco em **precisÃ£o e robustez**. Sistemas financeiros nÃ£o toleram erros de dados â€” por isso, a arquitetura foi desenhada desde o inÃ­cio com **Clean Architecture** e **DDD (Domain-Driven Design)**, garantindo que as regras de negÃ³cio estejam completamente isoladas de frameworks e camadas de infraestrutura.
+
+> *"A regra fundamental: dependÃªncias do cÃ³digo-fonte sÃ³ apontam para dentro, em direÃ§Ã£o Ã s polÃ­ticas de alto nÃ­vel. O nÃºcleo financeiro â€” como o dinheiro se move, como saldos sÃ£o reconciliados â€” permanece imune a mudanÃ§as tecnolÃ³gicas."*
 
 ---
 
-## 🏗️ Arquitetura
+## âœ¨ Funcionalidades
 
-O projeto segue estritamente a **Clean Architecture**, dividindo as responsabilidades em camadas concêntricas:
+- ðŸ“Š **GestÃ£o de Contas** â€” CriaÃ§Ã£o, consulta e controle de contas financeiras
+- ðŸ’³ **TransaÃ§Ãµes** â€” DepÃ³sitos, saques e transferÃªncias com integridade garantida
+- ðŸ“ˆ **RelatÃ³rios de Saldo** â€” Extrato e saldo em tempo real
+- ðŸ”’ **Regras de NegÃ³cio Ricas** â€” Entidades com invariantes (ex.: saldo nunca negativo sem limite aprovado)
+- ðŸ“„ **DocumentaÃ§Ã£o Swagger** â€” Interface interativa para testar todos os endpoints
 
-```mermaid
-graph TD
-    subgraph "Infrastructure Layer"
-        DB[(PostgreSQL)]
-        Prisma[Prisma ORM]
-        Controller[AccountController]
-    end
+---
 
-    subgraph "Application Layer"
-        UC1[CreateAccountUseCase]
-        UC2[TransferFundsUseCase]
-        DTOs[DTOs]
-    end
+## ðŸ—ï¸ Arquitetura
 
-    subgraph "Domain Layer (Core)"
-        Entity[Account Entity]
-        VO[Money ValueObject]
-        RepoInt[IAccountRepository]
-    end
+O projeto segue os princÃ­pios de **Clean Architecture** (Robert C. Martin) com camadas concÃªntricas bem definidas:
 
-    Controller --> UC1
-    Controller --> UC2
-    UC1 --> RepoInt
-    UC2 --> RepoInt
-    UC1 --> Entity
-    Prisma -.-> RepoInt
-    Prisma --> DB
+```
+src/
+â”œâ”€â”€ core/                     # Kernel Compartilhado
+â”‚   â”œâ”€â”€ logic/                # Result, Either, Guard (Monads)
+â”‚   â”œâ”€â”€ domain/               # Classes base para Entidades e VOs
+â”‚   â””â”€â”€ exceptions/           # ExceÃ§Ãµes de DomÃ­nio genÃ©ricas
+â”‚
+â””â”€â”€ modules/
+    â””â”€â”€ finance/              # Bounded Context Principal
+        â”œâ”€â”€ domain/           # â‘  NÃºcleo â€” Entidades, Value Objects, RepositÃ³rios (interfaces)
+        â”œâ”€â”€ application/      # â‘¡ OrquestraÃ§Ã£o â€” Use Cases, DTOs, Portas
+        â”œâ”€â”€ infrastructure/   # â‘¢ Infraestrutura â€” Prisma, Adapters, Mappers
+        â””â”€â”€ presentation/     # â‘£ Interface â€” Controllers HTTP
 ```
 
+### Por que Clean Architecture?
+
+| BenefÃ­cio | Impacto prÃ¡tico |
+|---|---|
+| DomÃ­nio isolado | Troca de banco sem alterar regras de negÃ³cio |
+| Alta testabilidade | Use Cases testÃ¡veis sem banco de dados real |
+| ManutenÃ§Ã£o simplificada | MudanÃ§as de framework nÃ£o afetam o nÃºcleo |
+| Escalabilidade | MÃ³dulos prontos para extraÃ§Ã£o em microsserviÃ§os |
+
 ---
 
-## ⚡ Como Executar
+## ðŸ› ï¸ Stack TecnolÃ³gica
 
-### Pré-requisitos
-*   Node.js (v18+)
-*   Docker & Docker Compose
+| Categoria | Tecnologia |
+|---|---|
+| **Framework** | NestJS 11 |
+| **Linguagem** | TypeScript 5.7 |
+| **ORM** | Prisma 5 |
+| **Banco de Dados** | PostgreSQL 13 |
+| **ContainerizaÃ§Ã£o** | Docker + Docker Compose |
+| **DocumentaÃ§Ã£o** | Swagger / OpenAPI |
+| **Testes** | Jest + Supertest |
+| **Qualidade** | ESLint + Prettier |
 
-### 1. Instalação
+---
+
+## ðŸš€ Como Executar
+
+### PrÃ©-requisitos
+
+- [Node.js 20+](https://nodejs.org/)
+- [Docker](https://www.docker.com/) e Docker Compose
+
+### 1. Clone o repositÃ³rio
+
 ```bash
-# Clone o repositório
 git clone https://github.com/icarogoggin/api_sistema_financeiro.git
-
-# Entre na pasta
 cd api_sistema_financeiro
-
-# Instale as dependências
-npm install
 ```
 
-### 2. Rodando com Docker (Recomendado)
-Suba o banco de dados PostgreSQL em segundos:
+### 2. Configure as variÃ¡veis de ambiente
+
+```bash
+cp .env.example .env
+# Edite o .env com suas configuraÃ§Ãµes
+```
+
+### 3. Suba o banco de dados via Docker
+
 ```bash
 docker-compose up -d
 ```
 
-### 3. Configuração do Banco
-```bash
-# Gere o cliente do Prisma
-npx prisma generate
+Isso iniciarÃ¡ um container **PostgreSQL 13** na porta `5432`.
 
-# (Opcional) Execute as migrações se necessário
-# npx prisma migrate dev
+### 4. Instale dependÃªncias e rode as migrations
+
+```bash
+npm install
+npx prisma migrate dev
 ```
 
-### 4. Inicie a API
+### 5. Inicie a API
+
 ```bash
+# Desenvolvimento (hot reload)
 npm run start:dev
+
+# ProduÃ§Ã£o
+npm run build && npm run start:prod
 ```
-A API estará rodando em `http://localhost:3000`.
+
+A API estarÃ¡ disponÃ­vel em: **http://localhost:3000**
 
 ---
 
-## 🧪 Testes
+## ðŸ“„ DocumentaÃ§Ã£o da API
 
-A qualidade é garantida por uma suíte de testes automatizados.
+Com a aplicaÃ§Ã£o rodando, acesse a documentaÃ§Ã£o interativa Swagger:
 
-*   **Testes Unitários**: Validam as regras de negócio isoladas (Entidades e Value Objects).
-    ```bash
-    npm run test
-    ```
-*   **Testes E2E (Integração)**: Validam os fluxos completos da API (Controllers -> UseCases).
-    ```bash
-    npm run test:e2e
-    ```
+```
+http://localhost:3000/api
+```
 
 ---
 
-## 📚 Documentação (Swagger)
-
-A documentação interativa da API é gerada automaticamente.
-Após iniciar a aplicação, acesse:
-
-👉 **[http://localhost:3000/api](http://localhost:3000/api)**
-
----
-
-## 🎮 Demonstração Rápida (Sem Docker)
-
-Quer ver o código rodando agora mesmo, sem configurar nada?
-Execute o script de demonstração que utiliza um repositório em memória:
+## ðŸ§ª Testes
 
 ```bash
-npx ts-node --project tsconfig.demo.json demo.ts
+# Testes unitÃ¡rios
+npm run test
+
+# Testes com relatÃ³rio de cobertura
+npm run test:cov
+
+# Testes end-to-end
+npm run test:e2e
+
+# Modo watch
+npm run test:watch
 ```
-Isso simulará a criação de contas e transferências no seu terminal.
 
 ---
 
-Developed with 💜 by **Ícaro Goggin**
+## ðŸ“¦ Scripts DisponÃ­veis
+
+| Script | DescriÃ§Ã£o |
+|---|---|
+| `npm run start:dev` | Inicia em modo desenvolvimento com hot reload |
+| `npm run start:prod` | Inicia a versÃ£o de produÃ§Ã£o compilada |
+| `npm run build` | Compila o projeto TypeScript |
+| `npm run test` | Executa os testes unitÃ¡rios |
+| `npm run test:cov` | Testes com relatÃ³rio de cobertura |
+| `npm run lint` | Verifica e corrige problemas de estilo |
+| `npm run format` | Formata o cÃ³digo com Prettier |
+
+---
+
+## ðŸ—‚ï¸ VariÃ¡veis de Ambiente
+
+Crie um arquivo `.env` na raiz com base no exemplo abaixo:
+
+```env
+# Banco de Dados
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/finance_db"
+
+# AplicaÃ§Ã£o
+PORT=3000
+NODE_ENV=development
+```
+
+---
+
+## ðŸ¤ Contribuindo
+
+1. FaÃ§a um fork do projeto
+2. Crie sua feature branch: `git checkout -b feat/minha-feature`
+3. Commit suas mudanÃ§as: `git commit -m 'feat: adiciona nova funcionalidade'`
+4. Push para a branch: `git push origin feat/minha-feature`
+5. Abra um Pull Request
+
+---
+
+## ðŸ‘¨â€ðŸ’» Autor
+
+**Ãcaro Goggin**
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-icarogoggin-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/icarogoggin)
+[![GitHub](https://img.shields.io/badge/GitHub-icarogoggin-181717?style=flat-square&logo=github)](https://github.com/icarogoggin)
+
+---
+
+<div align="center">
+  <sub>ConstruÃ­do com â¤ï¸ e TypeScript</sub>
+</div>
