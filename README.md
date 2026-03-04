@@ -1,73 +1,61 @@
-<div align="center">
+# API Sistema Financeiro
 
-<h1>ðŸ’° API Sistema Financeiro</h1>
+> RESTful API de gestão financeira pessoal construída com Clean Architecture e Domain-Driven Design
 
-<p>
-  <strong>RESTful API de gestÃ£o financeira pessoal construÃ­da com Clean Architecture e Domain-Driven Design</strong>
-</p>
-
-<p>
-  <img src="https://img.shields.io/badge/NestJS-11.x-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" />
-  <img src="https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
-  <img src="https://img.shields.io/badge/Prisma-5.x-2D3748?style=for-the-badge&logo=prisma&logoColor=white" />
-  <img src="https://img.shields.io/badge/PostgreSQL-13-336791?style=for-the-badge&logo=postgresql&logoColor=white" />
-  <img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
-  <img src="https://img.shields.io/badge/Swagger-OpenAPI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" />
-</p>
-
-</div>
+[![NestJS](https://img.shields.io/badge/NestJS-11.x-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-5.x-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Swagger](https://img.shields.io/badge/Swagger-OpenAPI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://swagger.io/)
 
 ---
 
-## ðŸ“‹ Sobre o Projeto
+## Sobre o Projeto
 
-API REST para gestÃ£o de finanÃ§as pessoais, projetada com foco em **precisÃ£o e robustez**. Sistemas financeiros nÃ£o toleram erros de dados â€” por isso, a arquitetura foi desenhada desde o inÃ­cio com **Clean Architecture** e **DDD (Domain-Driven Design)**, garantindo que as regras de negÃ³cio estejam completamente isoladas de frameworks e camadas de infraestrutura.
+API REST para gestão de finanças pessoais, projetada com foco em **precisão e robustez**.
 
-> *"A regra fundamental: dependÃªncias do cÃ³digo-fonte sÃ³ apontam para dentro, em direÃ§Ã£o Ã s polÃ­ticas de alto nÃ­vel. O nÃºcleo financeiro â€” como o dinheiro se move, como saldos sÃ£o reconciliados â€” permanece imune a mudanÃ§as tecnolÃ³gicas."*
-
----
-
-## âœ¨ Funcionalidades
-
-- ðŸ“Š **GestÃ£o de Contas** â€” CriaÃ§Ã£o, consulta e controle de contas financeiras
-- ðŸ’³ **TransaÃ§Ãµes** â€” DepÃ³sitos, saques e transferÃªncias com integridade garantida
-- ðŸ“ˆ **RelatÃ³rios de Saldo** â€” Extrato e saldo em tempo real
-- ðŸ”’ **Regras de NegÃ³cio Ricas** â€” Entidades com invariantes (ex.: saldo nunca negativo sem limite aprovado)
-- ðŸ“„ **DocumentaÃ§Ã£o Swagger** â€” Interface interativa para testar todos os endpoints
+Sistemas financeiros não toleram erros de dados. Por isso, a arquitetura foi desenhada com **Clean Architecture** e **DDD (Domain-Driven Design)**, garantindo que as regras de negócio fiquem completamente isoladas de frameworks e infraestrutura.
 
 ---
 
-## ðŸ—ï¸ Arquitetura
+## Funcionalidades
 
-O projeto segue os princÃ­pios de **Clean Architecture** (Robert C. Martin) com camadas concÃªntricas bem definidas:
+- **Gestão de Contas** — Criação, consulta e controle de contas financeiras
+- **Transações** — Depósitos, saques e transferências com integridade garantida
+- **Relatórios de Saldo** — Extrato e saldo em tempo real
+- **Regras de Negócio Ricas** — Entidades com invariantes (ex: saldo nunca negativo sem limite aprovado)
+- **Documentação Swagger** — Interface interativa para testar todos os endpoints
+
+---
+
+## Arquitetura
+
+O projeto segue os princípios de **Clean Architecture** com 4 camadas concêntricas:
 
 ```
 src/
-â”œâ”€â”€ core/                     # Kernel Compartilhado
-â”‚   â”œâ”€â”€ logic/                # Result, Either, Guard (Monads)
-â”‚   â”œâ”€â”€ domain/               # Classes base para Entidades e VOs
-â”‚   â””â”€â”€ exceptions/           # ExceÃ§Ãµes de DomÃ­nio genÃ©ricas
-â”‚
-â””â”€â”€ modules/
-    â””â”€â”€ finance/              # Bounded Context Principal
-        â”œâ”€â”€ domain/           # â‘  NÃºcleo â€” Entidades, Value Objects, RepositÃ³rios (interfaces)
-        â”œâ”€â”€ application/      # â‘¡ OrquestraÃ§Ã£o â€” Use Cases, DTOs, Portas
-        â”œâ”€â”€ infrastructure/   # â‘¢ Infraestrutura â€” Prisma, Adapters, Mappers
-        â””â”€â”€ presentation/     # â‘£ Interface â€” Controllers HTTP
+├── core/                     # Kernel Compartilhado
+│   ├── logic/                # Result, Either, Guard (Monads)
+│   ├── domain/               # Classes base para Entidades e VOs
+│   └── exceptions/           # Exceções de Domínio
+└── modules/
+    └── finance/              # Bounded Context Principal
+        ├── domain/           # Núcleo — Entidades, Value Objects, Repositórios
+        ├── application/      # Orquestração — Use Cases, DTOs, Portas
+        ├── infrastructure/   # Prisma, Adapters, Mappers
+        └── presentation/     # Controllers HTTP
 ```
 
-### Por que Clean Architecture?
-
-| BenefÃ­cio | Impacto prÃ¡tico |
+| Benefício | Impacto prático |
 |---|---|
-| DomÃ­nio isolado | Troca de banco sem alterar regras de negÃ³cio |
-| Alta testabilidade | Use Cases testÃ¡veis sem banco de dados real |
-| ManutenÃ§Ã£o simplificada | MudanÃ§as de framework nÃ£o afetam o nÃºcleo |
-| Escalabilidade | MÃ³dulos prontos para extraÃ§Ã£o em microsserviÃ§os |
+| Domínio isolado | Troca de banco sem alterar regras de negócio |
+| Alta testabilidade | Use Cases testáveis sem banco de dados real |
+| Escalabilidade | Módulos prontos para extração em microsserviços |
 
 ---
 
-## ðŸ› ï¸ Stack TecnolÃ³gica
+## Stack Tecnológica
 
 | Categoria | Tecnologia |
 |---|---|
@@ -75,139 +63,89 @@ src/
 | **Linguagem** | TypeScript 5.7 |
 | **ORM** | Prisma 5 |
 | **Banco de Dados** | PostgreSQL 13 |
-| **ContainerizaÃ§Ã£o** | Docker + Docker Compose |
-| **DocumentaÃ§Ã£o** | Swagger / OpenAPI |
+| **Containerização** | Docker + Docker Compose |
+| **Documentação** | Swagger / OpenAPI |
 | **Testes** | Jest + Supertest |
 | **Qualidade** | ESLint + Prettier |
 
 ---
 
-## ðŸš€ Como Executar
+## Como Executar
 
-### PrÃ©-requisitos
-
-- [Node.js 20+](https://nodejs.org/)
-- [Docker](https://www.docker.com/) e Docker Compose
-
-### 1. Clone o repositÃ³rio
+**Pré-requisitos:** Node.js 20+ e Docker
 
 ```bash
+# 1. Clone o repositório
 git clone https://github.com/icarogoggin/api_sistema_financeiro.git
 cd api_sistema_financeiro
-```
 
-### 2. Configure as variÃ¡veis de ambiente
-
-```bash
+# 2. Configure as variáveis de ambiente
 cp .env.example .env
-# Edite o .env com suas configuraÃ§Ãµes
-```
 
-### 3. Suba o banco de dados via Docker
-
-```bash
+# 3. Suba o banco de dados
 docker-compose up -d
-```
 
-Isso iniciarÃ¡ um container **PostgreSQL 13** na porta `5432`.
-
-### 4. Instale dependÃªncias e rode as migrations
-
-```bash
+# 4. Instale dependências e rode as migrations
 npm install
 npx prisma migrate dev
-```
 
-### 5. Inicie a API
-
-```bash
-# Desenvolvimento (hot reload)
+# 5. Inicie a API (modo desenvolvimento)
 npm run start:dev
-
-# ProduÃ§Ã£o
-npm run build && npm run start:prod
 ```
 
-A API estarÃ¡ disponÃ­vel em: **http://localhost:3000**
+A API estará disponível em **http://localhost:3000**
+
+A documentação Swagger estará em **http://localhost:3000/api**
 
 ---
 
-## ðŸ“„ DocumentaÃ§Ã£o da API
-
-Com a aplicaÃ§Ã£o rodando, acesse a documentaÃ§Ã£o interativa Swagger:
-
-```
-http://localhost:3000/api
-```
-
----
-
-## ðŸ§ª Testes
+## Testes
 
 ```bash
-# Testes unitÃ¡rios
-npm run test
-
-# Testes com relatÃ³rio de cobertura
-npm run test:cov
-
-# Testes end-to-end
-npm run test:e2e
-
-# Modo watch
-npm run test:watch
+npm run test        # Testes unitários
+npm run test:cov    # Cobertura de código
+npm run test:e2e    # Testes end-to-end
 ```
 
 ---
 
-## ðŸ“¦ Scripts DisponÃ­veis
+## Scripts
 
-| Script | DescriÃ§Ã£o |
+| Script | Descrição |
 |---|---|
-| `npm run start:dev` | Inicia em modo desenvolvimento com hot reload |
-| `npm run start:prod` | Inicia a versÃ£o de produÃ§Ã£o compilada |
-| `npm run build` | Compila o projeto TypeScript |
-| `npm run test` | Executa os testes unitÃ¡rios |
-| `npm run test:cov` | Testes com relatÃ³rio de cobertura |
-| `npm run lint` | Verifica e corrige problemas de estilo |
-| `npm run format` | Formata o cÃ³digo com Prettier |
+| `npm run start:dev` | Desenvolvimento com hot reload |
+| `npm run start:prod` | Produção |
+| `npm run build` | Compila TypeScript |
+| `npm run test` | Testes unitários |
+| `npm run test:cov` | Cobertura de testes |
+| `npm run lint` | Verifica estilo de código |
+| `npm run format` | Formata com Prettier |
 
 ---
 
-## ðŸ—‚ï¸ VariÃ¡veis de Ambiente
-
-Crie um arquivo `.env` na raiz com base no exemplo abaixo:
+## Variáveis de Ambiente
 
 ```env
-# Banco de Dados
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/finance_db"
-
-# AplicaÃ§Ã£o
 PORT=3000
 NODE_ENV=development
 ```
 
 ---
 
-## ðŸ¤ Contribuindo
+## Contribuindo
 
-1. FaÃ§a um fork do projeto
-2. Crie sua feature branch: `git checkout -b feat/minha-feature`
-3. Commit suas mudanÃ§as: `git commit -m 'feat: adiciona nova funcionalidade'`
-4. Push para a branch: `git push origin feat/minha-feature`
+1. Faça um fork do projeto
+2. Crie sua branch: `git checkout -b feat/minha-feature`
+3. Commit: `git commit -m 'feat: descrição da mudança'`
+4. Push: `git push origin feat/minha-feature`
 5. Abra um Pull Request
 
 ---
 
-## ðŸ‘¨â€ðŸ’» Autor
+## Autor
 
-**Ãcaro Goggin**
+**Ícaro Goggin** — Desenvolvedor Full Stack
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-icarogoggin-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/icarogoggin)
-[![GitHub](https://img.shields.io/badge/GitHub-icarogoggin-181717?style=flat-square&logo=github)](https://github.com/icarogoggin)
-
----
-
-<div align="center">
-  <sub>ConstruÃ­do com â¤ï¸ e TypeScript</sub>
-</div>
+- [LinkedIn](https://www.linkedin.com/in/icarogoggin)
+- [GitHub](https://github.com/icarogoggin)
